@@ -135,7 +135,7 @@ Le modèle de diarisation PyAnnote nécessite un token HuggingFace.
 
 #### Option 1 : Configuration via l'interface web (recommandé)
 
-1. Lancez l'application (voir section [Utilisation](#-utilisation))
+1. Lancez l'application (voir section [Utilisation](#utilisation))
 2. Une fenêtre modale s'ouvrira automatiquement au premier lancement
 3. Suivez les instructions à l'écran pour entrer votre token
 
@@ -259,15 +259,6 @@ Project_Speaker/
 ## Auteur
 
 - **Jean-Charles da Silva** - [@jcharlesDS](https://github.com/jcharlesDS)
-
----
-
-## Remerciements
-
-- [OpenAI Whisper](https://github.com/openai/whisper) pour la transcription
-- [PyAnnote](https://github.com/pyannote/pyannote-audio) pour la diarisation
-- [FastAPI](https://fastapi.tiangolo.com/) pour le framework web
-- [HuggingFace](https://huggingface.co/) pour l'hébergement des modèles
 
 ---
 
