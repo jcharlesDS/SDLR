@@ -10,13 +10,13 @@
 
 ## Table des matières
 
-- [Fonctionnalités](#-fonctionnalités)
-- [Prérequis](#-prérequis)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Utilisation](#-utilisation)
-- [Technologies](#-technologies)
-- [Architecture](#-architecture)
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Utilisation](#utilisation)
+- [Technologies](#technologies)
+- [Architecture](#architecture)
 
 ---
 
