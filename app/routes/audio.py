@@ -1,10 +1,12 @@
 import json
+import os
 import sys
 import time
 import uuid
 import warnings
 from app.models import AnalysisRequest, UploadResponse
 from config import AUDIO_CONFIG, UPLOAD_DIR, LANGUAGE_NAMES, MODEL_CONFIG
+from dotenv import load_dotenv
 from fastapi import APIRouter, File, HTTPException, UploadFile, Request
 from fastapi.responses import JSONResponse, StreamingResponse, Response
 from io import BytesIO
@@ -30,7 +32,7 @@ if not hasattr(torchaudio, 'set_audio_backend'):
 
 from models.language_id import LanguageIdentifier
 from models.diarization import SpeakerDiarizer
-
+from models.transcription import Transcriber
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -185,7 +187,6 @@ async def analyze_audio(request: AnalysisRequest):
         transcription_result = None
         if request.enable_transcription:
             print("Phase 3: Transcription...")
-            from models.transcription import Transcriber
             transcriber = Transcriber(device=device, model_name=MODEL_CONFIG["whisper"]["model_size"])
             transcription_result = transcriber.transcribe_with_speakers(
                 file_path,
@@ -294,7 +295,6 @@ async def analyze_audio_stream(
                 data = {'progress': 65, 'message': 'Transcription en cours...', 'step': 'transcription'}
                 yield f"data: {json.dumps(data)}\n\n"
                 print("Phase 3: Transcription...")
-                from models.transcription import Transcriber
                 transcriber = Transcriber(device=device, model_name=MODEL_CONFIG["whisper"]["model_size"])
                 transcription_result = transcriber.transcribe_with_speakers(
                     file_path,
@@ -351,7 +351,6 @@ async def analyze_audio_stream(
 async def clear_uploads():
     """Supprime tous les fichiers du dossier uploads"""
     try:
-        import shutil
         deleted_count = 0
         
         if UPLOAD_DIR.exists():
@@ -373,8 +372,6 @@ async def clear_uploads():
 @router.get("/config/huggingface-token/status")
 async def check_hf_token_status():
     """Vérifie si le token HuggingFace est configuré (sans le renvoyer)"""
-    import os
-    from dotenv import load_dotenv
     load_dotenv()
     
     token = os.getenv("HUGGINGFACE_TOKEN")
@@ -399,10 +396,6 @@ async def save_hf_token(request: dict):
         raise HTTPException(status_code=400, detail="Token invalide (doit commencer par 'hf_')")
     
     try:
-        from pathlib import Path
-        import os
-        from dotenv import load_dotenv
-        
         env_path = Path(__file__).parent.parent.parent / ".env"
         
         # Lire le contenu existant du .env
@@ -431,7 +424,6 @@ async def save_hf_token(request: dict):
         os.environ['HUGGINGFACE_TOKEN'] = token
         
         # Mettre à jour la config en mémoire
-        from config import MODEL_CONFIG
         MODEL_CONFIG["pyannote"]["auth_token"] = token
         
         print("✓ Token HuggingFace configuré avec succès")
