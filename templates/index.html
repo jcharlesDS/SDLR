@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDLR</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="flex: 1;">
+                    <h1>Speaker Diarization & Language Recognition</h1>
+                    <p>Analysez vos fichiers audios: détection de langue et séparation des locuteurs</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-left: 2rem;">
+                    <button id="themeToggle" class="theme-toggle" title="Basculer le mode sombre">
+                        <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg id="moonIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                    <button id="configTokenBtn" class="btn-secondary-sm" title="Configurer le token HuggingFace">
+                        <svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align: middle;">
+                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1v6m0 6v6M23 12h-6m-2 0H1" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Token
+                    </button>
+                    <button id="clearUploadsBtn" class="btn-danger" title="Supprimer tous les fichiers du dossier uploads">
+                        <svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align: middle; margin-top: -1px;">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none" stroke="white" stroke-width="2"/>
+                            <line x1="10" y1="11" x2="10" y2="17" stroke="white" stroke-width="2"/>
+                            <line x1="14" y1="11" x2="14" y2="17" stroke="white" stroke-width="2"/>
+                        </svg>
+                        Vider
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <div class="upload-box" id="uploadBox">
+                <input type="file" id="audioFile" accept=".wav, .mp3, .flac, .ogg, .m4a" hidden>
+                <div class="upload-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24" width="48" height="48">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    <h3>Glissez votre fichier audio ici</h3>
+                    <p>ou cliquez pour sélectionner un fichier</p>
+                    <p class="formats">Formats supportés: WAV, MP3, FLAC, OGG, M4A (max 500 Mo)</p>
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="options">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="batchMode">
+                    <span>Mode Batch - Analyser plusieurs fichiers (max 10)</span>
+                </label>
+                
+                <label class="checkbox-container">
+                    <input type="checkbox" id="enableTranscription">
+                    <span>Activer la transcription (optionnel)</span>
+                </label>
+                
+                <label class="checkbox-container">
+                    <input type="checkbox" id="useCuda">
+                    <span>Utiliser CUDA (GPU) - Plus rapide si disponible</span>
+                </label>
+                
+                <div class="slider-container">
+                    <label for="mergeCollar">
+                        <span>Fusion des segments adjacents: <strong id="mergeCollarValue">0.5</strong>s</span>
+                        <p class="helper-text">Augmentez cette valeur si les segments sont trop fragmentés</p>
+                    </label>
+                    <input type="range" id="mergeCollar" min="0" max="2" step="0.1" value="1.0">
+                </div>
+                
+                <div class="slider-container">
+                    <label for="numSpeakers">
+                        <span>Nombre de locuteurs (optionnel)</span>
+                        <p class="helper-text">Laissez vide pour détection automatique. Si vous connaissez le nombre exact, spécifiez-le pour améliorer la précision.</p>
+                    </label>
+                    <input type="number" id="numSpeakers" min="1" max="10" placeholder="Auto" class="number-input">
+                </div>
+            </div>
+
+            <button id="analyzeBtn" class="btn-primary" disabled>Analyser l'audio</button>
+        </section>
+
+        <!-- Progress Section -->
+        <section class="progress-section" id="progressSection" style="display: none;">
+            <h3>Analyse en cours...</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">Upload du fichier...</p>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin: 0;">Résultats de l'analyse</h2>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- Bouton d'export -->
+                    <div class="export-dropdown" id="exportDropdown">
+                        <button class="export-btn" id="exportBtn" title="Exporter les résultats">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Exporter
+                        </button>
+                        <div class="export-menu" id="exportMenu" style="display: none;">
+                            <button class="export-option" data-format="json">JSON (complet)</button>
+                            <button class="export-option" data-format="txt">TXT (analyse)</button>
+                            <button class="export-option" data-format="srt">SRT (transcription)</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation batch -->
+                    <div id="batchNavigation" style="display: none; align-items: center; gap: 1rem;">
+                    <button id="prevResultBtn" class="nav-btn" title="Résultat précédent">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <span id="resultCounter" style="font-weight: 600; color: var(--text-primary);">1 / 1</span>
+                    <button id="nextResultBtn" class="nav-btn" title="Résultat suivant">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </div>
+                </div>
+            </div>
+            <div id="currentFileName" style="margin-bottom: 1rem; padding: 0.75rem; background: var(--section-bg); border-radius: 8px; font-weight: 500; color: var(--text-primary); display: none;">
+                <svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align: middle; margin-right: 0.5rem;" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <span id="fileNameText"></span>
+            </div>
+            
+            <!-- Audio Player -->
+            <div class="result-card audio-player-card" id="audioPlayerCard" style="display: none;">
+                <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                    </svg>
+                    Lecteur audio
+                </h3>
+                <audio id="audioPlayer" controls controlsList="nodownload" style="width: 100%; outline: none;">
+                    Votre navigateur ne supporte pas la lecture audio.
+                </audio>
+                <p class="audio-player-hint">
+                    💡 Cliquez sur un timestamp dans la timeline ou la transcription pour naviguer
+                </p>
+            </div>
+            
+            <!-- Processing Time -->
+            <div class="result-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="color: white; margin: 0;">Temps de traitement</h3>
+                        <div id="processingTime" style="font-size: 1.5rem; font-weight: 600; margin-top: 0.5rem;"></div>
+                    </div>
+                    <div id="deviceUsed" style="font-size: 0.9rem; opacity: 0.9;"></div>
+                </div>
+            </div>
+
+            <!-- Language Detection -->
+            <div class="result-card">
+                <h3>Langue détectée</h3>
+                <div id="languageResult"></div>
+            </div>
+
+            <!-- Speaker Diarization -->
+            <div class="result-card">
+                <h3>Séparation des locuteurs</h3>
+                <div id="speakersResult"></div>
+                <div id="timeline"></div>
+            </div>
+
+            <!-- Transcription -->
+            <div class="result-card" id="transcriptionCard" style="display: none;">
+                <h3>Transcription</h3>
+                <div id="transcriptionResult"></div>
+            </div>
+        </section>
+
+        <!-- Modal Token HuggingFace -->
+        <div id="tokenModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>Configuration HuggingFace</h2>
+                <p class="modal-description">
+                    Pour utiliser la diarization des locuteurs, vous devez configurer un token HuggingFace.
+                </p>
+                
+                <div class="modal-info-box">
+                    <p>Étapes de configuration :</p>
+                    <ol>
+                        <li>Créez un compte sur <a href="https://huggingface.co/join" target="_blank" class="modal-link">HuggingFace</a> (gratuit)</li>
+                        <li>Acceptez les conditions des modèles :
+                            <ul>
+                                <li><a href="https://huggingface.co/pyannote/speaker-diarization-3.1" target="_blank" class="modal-link">speaker-diarization-3.1</a></li>
+                                <li><a href="https://huggingface.co/pyannote/segmentation-3.0" target="_blank" class="modal-link">segmentation-3.0</a></li>
+                                <li><a href="https://huggingface.co/pyannote/speaker-diarization-community-1" target="_blank" class="modal-link">speaker-diarization-community-1 (souvent nécessaire)</a></li>
+                            </ul>
+                        </li>
+                        <li>Créez un token sur <a href="https://huggingface.co/settings/tokens" target="_blank" class="modal-link">huggingface.co/settings/tokens</a>
+                            <br><span class="modal-small-text">Token "Read" ou Permissions : Read access to contents of public gated repos</span>
+                        </li>
+                        <li>Collez le token ci-dessous (commence par <code class="modal-code">hf_</code>)</li>
+                    </ol>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="hfToken" class="modal-label">Token HuggingFace</label>
+                    <input type="password" id="hfToken" placeholder="hf_..." class="modal-input">
+                    <p id="tokenError" class="modal-error"></p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button id="saveTokenBtn" class="btn-primary">Enregistrer</button>
+                    <button id="cancelTokenBtn" class="btn-secondary">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
