@@ -24,7 +24,9 @@
 
 - **Détection automatique de langue** - Identification de la langue parlée avec score de confiance
 - **Diarisation des locuteurs** - Séparation et identification automatique des différents locuteurs
+- **Édition des locuteurs** - Renommer les locuteurs identifiés par le système à votre guise
 - **Transcription audio** - Conversion parole-texte avec Whisper (optionnel)
+- **Édition de la transcription** - Éditer sur l'interface la transcription produite par le système
 - **Timeline interactive** - Visualisation des segments audio par locuteur avec couleurs
 - **Lecteur audio intégré** - Navigation directe vers n'importe quel segment en cliquant sur les timestamps
 - **Export de segments** - Extraction et téléchargement de segments audio spécifiques (MP3/WAV)
@@ -186,6 +188,7 @@ Ouvrez votre navigateur : **[http://localhost:8000](http://localhost:8000)**
 4. **Résultats** : Consultez la timeline, transcription, et statistiques
 5. **Actions** :
    - Cliquez sur un timestamp pour naviguer dans l'audio
+   - Editez les transcriptions/noms des locuteurs
    - Exportez des segments audio spécifiques
    - Exportez les résultats (JSON/TXT/SRT)
 
