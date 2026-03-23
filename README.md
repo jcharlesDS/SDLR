@@ -225,7 +225,7 @@ Ouvrez votre navigateur : **[http://localhost:8000](http://localhost:8000)**
 ## Architecture
 
 ```
-Project_Speaker/
+SDLR/
 ├── app/
 │   ├── main.py              # Point d'entrée FastAPI
 │   ├── models.py            # Modèles Pydantic
