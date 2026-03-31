@@ -22,7 +22,7 @@ let batchEdits = {}; // { resultIndex: { speakerNames: {}, transcriptionEdits: {
 let uploadBox, audioFileInput, analyzeBtn, enableTranscription, useCuda, mergeCollar, mergeCollarValue, numSpeakers;
 let progressSection, progressFill, progressText, resultsSection;
 let clearUploadsBtn, configTokenBtn, tokenModal, hfTokenInput, saveTokenBtn, cancelTokenBtn, tokenError;
-let themeToggle, sunIcon, moonIcon;
+let themeToggle, sunIcon, moonIcon, colorThemeBtn;
 let batchModeCheckbox, batchNavigation, prevResultBtn, nextResultBtn, resultCounter, currentFileName, fileNameText;
 let exportBtn, exportMenu;
 let audioPlayer, audioPlayerCard;
@@ -52,6 +52,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     themeToggle = document.getElementById('themeToggle');
     sunIcon = document.getElementById('sunIcon');
     moonIcon = document.getElementById('moonIcon');
+    colorThemeBtn = document.getElementById('colorThemeBtn');
     batchModeCheckbox = document.getElementById('batchMode');
     batchNavigation = document.getElementById('batchNavigation');
     prevResultBtn = document.getElementById('prevResultBtn');
@@ -121,7 +122,7 @@ function initializeEventListeners() {
         }
     });
     
-    // Navigation batch
+    // Navigation des résultats en mode batch
     prevResultBtn.addEventListener('click', () => {
         if (currentResultIndex > 0) {
             currentResultIndex--;
@@ -138,14 +139,14 @@ function initializeEventListeners() {
         }
     });
     
-    // Export button - toggle menu
+    // Gestion du menu d'export global
     exportBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const isVisible = exportMenu.style.display === 'block';
         exportMenu.style.display = isVisible ? 'none' : 'block';
     });
     
-    // Export options
+    // Listeners pour les options d'export global
     document.querySelectorAll('.export-option').forEach(option => {
         option.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -155,14 +156,14 @@ function initializeEventListeners() {
         });
     });
     
-    // Close export menu when clicking outside
+    // Fermer le menu d'export en cliquant en dehors
     document.addEventListener('click', (e) => {
         if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
             exportMenu.style.display = 'none';
         }
     });
     
-    //Gestion du glisser-déposer de fichiers
+    // Gestion du glisser-déposer de fichiers
     uploadBox.addEventListener('click', () => audioFileInput.click());
 
     uploadBox.addEventListener('dragover', (e) => {
@@ -911,14 +912,14 @@ function displayResults(results) {
     }
 }
 
-// Export functionality
+// Exporter
 function exportData(format) {
     if (!currentResults) {
-        console.error('No results to export');
+        console.error('Aucun résultat à exporter');
         return;
     }
     
-    const fileName = currentAnalysisFileName.replace(/\.[^/.]+$/, ''); // Remove extension
+    const fileName = currentAnalysisFileName.replace(/\.[^/.]+$/, ''); // Enlever l'extension du nom de fichier
     
     switch(format) {
         case 'json':
@@ -1375,14 +1376,21 @@ function showTokenError(message) {
 function initializeTheme() {
     // Récupérer la préférence sauvegardée ou utiliser la préférence système
     const savedTheme = localStorage.getItem('theme');
+    const savedColorTheme = localStorage.getItem('colorTheme') || 'blue';
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
     const theme = savedTheme || (prefersDark ? 'dark' : 'light');
     setTheme(theme);
+    setColorTheme(savedColorTheme);
     
     // Event listener pour le bouton toggle
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
+    }
+    
+    // Event listener pour le bouton de changement de thème de couleur
+    if (colorThemeBtn) {
+        colorThemeBtn.addEventListener('click', toggleColorTheme);
     }
 }
 
@@ -1404,4 +1412,36 @@ function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
+}
+
+function setColorTheme(colorTheme) {
+    console.log('Setting color theme to:', colorTheme);
+    if (colorTheme === 'red') {
+        document.documentElement.setAttribute('data-color-theme', 'red');
+    } else {
+        document.documentElement.removeAttribute('data-color-theme');
+    }
+    localStorage.setItem('colorTheme', colorTheme);
+    
+    // Mettre à jour le texte du bouton pour indiquer le thème actif
+    if (colorThemeBtn) {
+        colorThemeBtn.innerHTML = colorTheme === 'red' 
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 1 0 8"/>
+               </svg>
+               <span style="font-weight: 700;">Rouge</span>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 1 0 8"/>
+               </svg>
+               <span style="font-weight: 700;">Bleu</span>`;
+    }
+}
+
+function toggleColorTheme() {
+    const currentColorTheme = localStorage.getItem('colorTheme') || 'blue';
+    const newColorTheme = currentColorTheme === 'blue' ? 'red' : 'blue';
+    console.log('Toggling from', currentColorTheme, 'to', newColorTheme);
+    setColorTheme(newColorTheme);
 }

@@ -2,7 +2,7 @@
 
 > Application web FastAPI pour l'analyse audio intelligente : détection de langue, séparation des locuteurs et transcription automatique.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)
 
@@ -48,7 +48,7 @@
 
 ### Logiciels requis
 
-- **Python** 3.9 ou supérieur
+- **Python** 3.11 (dév avec 3.11.9)
 - **FFmpeg** (pour le traitement audio)
 
 ---
